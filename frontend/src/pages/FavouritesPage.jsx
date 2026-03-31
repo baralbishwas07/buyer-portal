@@ -21,14 +21,16 @@ function FavouritesPage() {
   }
 
   async function handleRemove(propertyId) {
+    // Optimistic UI + Toast
     const previousFavourites = favourites;
     setFavourites((prev) => prev.filter((fav) => fav.propertyId !== propertyId));
+    toast.success('Removed from favourites');
 
     const result = await removeFavourite(propertyId);
-    if (result.success) {
-      toast.success('Removed from favourites');
-    } else {
+    if (!result.success) {
+      // Revert on failure
       setFavourites(previousFavourites);
+      toast.dismiss();
       toast.error(result.message || 'Failed to remove');
     }
   }

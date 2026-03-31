@@ -24,33 +24,37 @@ function DashboardPage() {
   }
 
   async function handleAdd(propertyId) {
+    // Optimistic UI + Toast
     setFavouriteIds((prev) => new Set([...prev, propertyId]));
+    toast.success('Added to favourites');
 
     const result = await addFavourite(propertyId);
-    if (result.success) {
-      toast.success('Added to favourites');
-    } else {
+    if (!result.success) {
+      // Revert on failure
       setFavouriteIds((prev) => {
         const updated = new Set(prev);
         updated.delete(propertyId);
         return updated;
       });
+      toast.dismiss(); // Remove the success toast
       toast.error(result.message || 'Failed to add');
     }
   }
 
   async function handleRemove(propertyId) {
+    // Optimistic UI + Toast
     setFavouriteIds((prev) => {
       const updated = new Set(prev);
       updated.delete(propertyId);
       return updated;
     });
+    toast.success('Removed from favourites');
 
     const result = await removeFavourite(propertyId);
-    if (result.success) {
-      toast.success('Removed from favourites');
-    } else {
+    if (!result.success) {
+      // Revert on failure
       setFavouriteIds((prev) => new Set([...prev, propertyId]));
+      toast.dismiss();
       toast.error(result.message || 'Failed to remove');
     }
   }
